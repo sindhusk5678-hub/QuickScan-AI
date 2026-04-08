@@ -76,4 +76,3 @@ if st.checkbox("Show Patient Records (Admin Only)"):
         st.table(records)
     except:
         st.write("No records found yet.")
-  

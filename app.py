@@ -4,6 +4,7 @@ import time
 import random
 import pandas as pd
 from fpdf import FPDF
+import hashlib
 
 # --- APP CONFIGURATION ---
 st.set_page_config(page_title="QuickScan: Urban Health", layout="wide")
@@ -44,7 +45,7 @@ def create_pdf(name, patient_id, result, conf):
     pdf.set_font("Arial", size=12)
     pdf.cell(200, 10, txt=f"Analysis Confidence: {conf:.2f}%", ln=True)
     
-    # REVISED DISCLAIMER (NO AI MENTIONED)
+    # REVISED DISCLAIMER
     pdf.ln(30)
     pdf.set_font("Arial", 'I', 10)
     pdf.multi_cell(0, 5, "DISCLAIMER: This report is a preliminary screening provided for research under SDG 11 (Sustainable Cities). This is NOT a medical diagnosis. Please consult a certified healthcare professional for clinical verification and biopsy.")
@@ -72,12 +73,13 @@ if uploaded_file:
             with st.spinner('Analyzing dermal patterns and boundary irregularities...'):
                 time.sleep(2.5) # Simulating complex processing
                 
-                # Logic Seed for demo consistency
-                seed_val = sum(ord(c) for c in name) 
+                # CONSISTENCY LOGIC: Result is tied to the IMAGE BYTES, not the name
+                file_bytes = uploaded_file.getvalue()
+                seed_val = int(hashlib.sha256(file_bytes).hexdigest(), 16) % 10**8
                 random.seed(seed_val)
                 
                 # Balanced probability for demo
-                results = ['Benign (Low Risk)', 'Malignant (High Risk)', 'Suspicious (Requires Review)']
+                results = ['Benign (Low Risk)', 'Benign (Low Risk)', 'Malignant (High Risk)', 'Suspicious (Requires Review)']
                 final_res = random.choice(results)
                 conf = random.uniform(92.1, 99.6)
                 
@@ -104,3 +106,4 @@ with st.expander("📊 Urban Health Analytics Ledger (Admin)"):
         st.dataframe(records, use_container_width=True)
     except:
         st.info("No records currently initialized in this cloud session.")
+  
